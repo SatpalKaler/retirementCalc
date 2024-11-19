@@ -2,13 +2,17 @@ import streamlit as st
 import math
 from datetime import datetime
 
+st.set_page_config(
+    page_title="Retirement Calculator",  # Title shown on the browser tab
+    page_icon="💰",  # You can use an emoji or a favicon file
+    layout="centered",  # Set the page configuration to wide layout and hide the sidebar by default
+    initial_sidebar_state="collapsed"
+)
+
 # Function to calculate future value
 def calculate_future_value(P, r, n, t, PMT):
     A = P * (1 + r/n)**(n*t) + PMT * (((1 + r/n)**(n*t) - 1) / (r/n))
     return A
-
-# Set the page configuration to wide layout and hide the sidebar by default
-st.set_page_config(layout="centered", initial_sidebar_state="collapsed")
 
 # Custom CSS for consistent, muted colors and vibrant highlights
 st.markdown("""
@@ -84,25 +88,39 @@ years_to_retirement = retirement_age - current_age
 # Calculate future values (nominal)
 future_epf = calculate_future_value(current_epf, epf_annual_rate, compounding_frequency, years_to_retirement, monthly_epf_contribution)
 future_investments = calculate_future_value(current_investments, investment_annual_rate, compounding_frequency, years_to_retirement, monthly_investments)
-total_fund_by_retirement = future_epf + future_investments
+net_worth_by_retirement = future_epf + future_investments
 
 # Calculate inflation-adjusted values
 real_future_epf = future_epf / ((1 + inflation_rate) ** years_to_retirement)
 real_future_investments = future_investments / ((1 + inflation_rate) ** years_to_retirement)
-real_total_fund = real_future_epf + real_future_investments
+real_net_worth = real_future_epf + real_future_investments
 
 # Main area for results at the bottom
 st.subheader('Results')
 
-# Total fund by retirement
-st.metric(label="Total Fund by Retirement", value=f"{currency}{total_fund_by_retirement:,.2f}")
-st.markdown(f"<p style='color: #4CAF50;'> * Your EPF will be worth: {currency}{future_epf:,.2f}</p>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #4CAF50;'> * Your investments will be worth: {currency}{future_investments:,.2f}</p>", unsafe_allow_html=True)
+# Organize results into two sections using columns
+col1, col2 = st.columns(2)
 
-# Inflation-adjusted total fund
-st.metric(label="Inflation-Adjusted Total Fund", value=f"{currency}{real_total_fund:,.2f}")
-st.markdown(f"<p style='color: #4CAF50;'>- Your EPF will be worth: {currency}{real_future_epf:,.2f}</p>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #4CAF50;'>- Your investments will be worth: {currency}{real_future_investments:,.2f}</p>", unsafe_allow_html=True)
+# Separate nominal and inflation into different rows
+st.markdown("### Nominal Values")
+col1, col2 = st.columns([0.5, 0.5])
+
+with col1:
+    st.metric(label="Net Worth by Retirement", value=f"{currency}{net_worth_by_retirement:,.2f}")
+
+with col2:
+    st.markdown(f"<p style='color: #4CAF50;'> * Your EPF will be worth: {currency}{future_epf:,.2f}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #4CAF50;'> * Your investments will be worth: {currency}{future_investments:,.2f}</p>", unsafe_allow_html=True)
+
+st.markdown("### Inflation-Adjusted Values")
+col3, col4 = st.columns([0.5, 0.5])
+
+with col3:
+    st.metric(label="Inflation-Adjusted Net Worth", value=f"{currency}{real_net_worth:,.2f}")
+
+with col4:
+    st.markdown(f"<p style='color: #4CAF50;'>- Your EPF will be worth: {currency}{real_future_epf:,.2f}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #4CAF50;'>- Your investments will be worth: {currency}{real_future_investments:,.2f}</p>", unsafe_allow_html=True)
 
 
 # Calculate future burger cost based on inflation
@@ -125,7 +143,7 @@ with st.expander("**How purchasing power & inflation works!**"):
 
     For example, if a burger cost **RM5** in 1993, it would now cost **RM{current_burger_cost:,.2f}** due to inflation.
 
-    Using the same logic, if you have **{currency}{total_fund_by_retirement:,.2f}** in the future, it will have the purchasing power of **{currency}{real_total_fund:,.2f}** in today’s value.
+    Using the same logic, if you have **{currency}{net_worth_by_retirement:,.2f}** in the future, it will have the purchasing power of **{currency}{real_net_worth:,.2f}** in today’s value.
 
     So, if a burger costs **RM{current_burger_cost:,.2f}** today, it could cost **RM{future_burger_cost:,.2f}** in **{years_to_retirement}** years.
     """)
