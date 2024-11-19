@@ -2,6 +2,14 @@ import streamlit as st
 import math
 from datetime import datetime
 
+# This must be the first Streamlit command
+st.set_page_config(
+    page_title="Retirement Calculator",
+    page_icon="💰",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
 # Configure dark mode text color based on theme
 if st.get_option("theme.base") == "dark":
     st.markdown("""
@@ -11,13 +19,6 @@ if st.get_option("theme.base") == "dark":
             }
         </style>
     """, unsafe_allow_html=True)
-
-st.set_page_config(
-    page_title="Retirement Calculator",  # Title shown on the browser tab
-    page_icon="💰",  # You can use an emoji or a favicon file
-    layout="centered",  # Set the page configuration to wide layout and hide the sidebar by default
-    initial_sidebar_state="collapsed"
-)
 
 # Function to calculate future value
 def calculate_future_value(P, r, n, t, PMT):
