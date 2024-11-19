@@ -5,23 +5,35 @@ def calculate_future_value(P, r, n, t, PMT):
     A = P * (1 + r/n)**(n*t) + PMT * (((1 + r/n)**(n*t) - 1) / (r/n))
     return A
 
-# Set the page configuration to wide layout
-st.set_page_config(layout="wide")
+# Set the page configuration to wide layout and hide the sidebar by default
+st.set_page_config(layout="centered", initial_sidebar_state="collapsed")
 
 st.title('Retirement Calculator')
+# Input fields in a card at the top
+with st.expander("**Input Information**", expanded=True):
+    # Currency selection
+    col1, col2, col3 = st.columns([0.3, 0.7, 0.7])
+    
+    with col1:
+        currency = st.text_input('Currency', value='RM')
+    with col2:
+        current_age = st.number_input('Current Age', min_value=0, max_value=100, value=30)
+    with col3:
+        retirement_age = st.number_input('Expected Age of Retirement', min_value=0, max_value=100, value=65)
 
-# Sidebar for input fields
-st.sidebar.header('Input Parameters')
-
-# Currency selection
-currency = st.sidebar.selectbox('Currency', ['RM', 'USD', 'EUR', 'GBP'])
-
-current_age = st.sidebar.number_input('Current Age', min_value=0, max_value=100, value=30)
-retirement_age = st.sidebar.number_input('Expected Age of Retirement', min_value=0, max_value=100, value=65)
-current_epf = float(st.sidebar.text_input(f'Current EPF Amount ({currency})', value='10,000').replace(',', ''))
-monthly_epf_contribution = float(st.sidebar.text_input(f'Monthly EPF Contribution (Total) ({currency})', value='500').replace(',', ''))
-current_investments = float(st.sidebar.text_input(f'Current Investments (Stocks, Gold, ETFs) ({currency})', value='50,000').replace(',', ''))
-monthly_investments = float(st.sidebar.text_input(f'Monthly Investments ({currency})', value='1,000').replace(',', ''))
+    col4, col5 = st.columns([0.5, 0.5])
+    
+    with col4:
+        current_epf = float(st.text_input(f'Current EPF Amount ({currency})', value='10,000').replace(',', ''))
+    with col5:
+        monthly_epf_contribution = float(st.text_input(f'Monthly EPF Contribution (Total) ({currency})', value='500').replace(',', ''))
+    
+    col6, col7 = st.columns([0.5, 0.5])
+    
+    with col6:
+        current_investments = float(st.text_input(f'Current Investments ({currency})', value='50,000').replace(',', ''))
+    with col7:
+        monthly_investments = float(st.text_input(f'Monthly Investments ({currency})', value='1,000').replace(',', ''))
 
 # Constants
 epf_annual_rate = 0.05  # 5% annual return for EPF
@@ -42,37 +54,39 @@ real_future_epf = future_epf / ((1 + inflation_rate) ** years_to_retirement)
 real_future_investments = future_investments / ((1 + inflation_rate) ** years_to_retirement)
 real_total_fund = real_future_epf + real_future_investments
 
-# Main area for results
+# Main area for results at the bottom
 st.subheader('Results')
-st.write(f'By the time you retire (in nominal terms):')
-st.write(f'- Your EPF will be worth: {currency}{future_epf:,.2f}')
-st.write(f'- Your investments will be worth: {currency}{future_investments:,.2f}')
-st.write(f'- Total fund: {currency}{total_fund_by_retirement:,.2f}')
 
-st.write(f'\nIn today\'s purchasing power (inflation-adjusted):')
-st.write(f'- Your EPF will be worth: {currency}{real_future_epf:,.2f}')
-st.write(f'- Your investments will be worth: {currency}{real_future_investments:,.2f}')
-st.write(f'- Total fund: {currency}{real_total_fund:,.2f}')
+# Total fund by retirement
+st.markdown(f"<h3 style='color: #0000FF;'>Total fund by the time you retire: {currency}{total_fund_by_retirement:,.2f}</h3>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #000000;'>- Your EPF will be worth: {currency}{future_epf:,.2f}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #000000;'>- Your investments will be worth: {currency}{future_investments:,.2f}</p>", unsafe_allow_html=True)
+
+# Inflation-adjusted total fund
+st.markdown(f"<h3 style='color: #008000;'>Total fund inflation-adjusted: {currency}{real_total_fund:,.2f}</h3>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #000000;'>- Your EPF will be worth: {currency}{real_future_epf:,.2f}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #000000;'>- Your investments will be worth: {currency}{real_future_investments:,.2f}</p>", unsafe_allow_html=True)
 
 # Calculate future burger cost based on inflation
-current_burger_cost = 2.05  # Example current cost of a burger
+current_burger_cost = 5  # Example current cost of a burger
 future_burger_cost = current_burger_cost * ((1 + inflation_rate) ** years_to_retirement)
 
 # Add a dropdown to explain purchasing power
-with st.expander("How purchasing power & inflation works!"):
+with st.expander("**How purchasing power & inflation works!**"):
     st.write(f"""
-    If you had RM10,000 in 1993 (30 years ago), adjusted to inflation that amount would be RM20,458.
-    The purchasing power of your RM20,458 now, is equal to RM10,000 in 1993.
-
-    Which means that if you bought a burger for RM1 in 1993, it would now cost you RM2.05 to buy the same burger.
-
-    So, your {currency}{total_fund_by_retirement:,.2f} in the future, will be worth {currency}{real_total_fund:,.2f} in today's value.
+    If you had **RM10,000** in 1993 (30 years ago), adjusted for inflation, that amount would be equivalent to **RM20,458** today. 
     
-    Which means that if you buy a burger for RM2.05 now, it will cost you RM{future_burger_cost:,.2f} to buy the same burger in {years_to_retirement} years.
+    This means the purchasing power of **RM20,458** now is the same as **RM10,000** in 1993.
+
+    For example, if a burger cost **RM5** in 1993, it would now cost **RM10.25** due to inflation.
+
+    Using the same logic, if you have **{currency}{total_fund_by_retirement:,.2f}** in the future, it will have the purchasing power of **{currency}{real_total_fund:,.2f}** in today’s value.
+
+    So, if a burger costs **RM10.25** today, it could cost **RM{future_burger_cost:,.2f}** in **{years_to_retirement}** years.
     """)
 
-# Disclaimer and details
-st.markdown("""
+# Disclaimer and details in the sidebar
+st.sidebar.markdown("""
 ---
 **Disclaimer:** This calculator provides an estimate based on the inputs and assumptions provided. Actual results may vary.
 
@@ -81,4 +95,34 @@ st.markdown("""
 - Investment annual return: 7%
 - Inflation rate: 3%
 - Compounding frequency: Monthly
+""")
+st.sidebar.markdown("""
+**Formulas:**
+- **Future Value (FV):**
+  ```
+  A = P(1 + n/r)^(nt) + PMT * ((1 + n/r)^(nt) - 1) / (r/n)
+  ```
+  Where:
+  - `P` = Present Value
+  - `r` = Annual Interest Rate
+  - `n` = Number of Compounding Periods per Year
+  - `t` = Number of Years
+  - `PMT` = Payment per Period
+
+- **Inflation-Adjusted Value:**
+  ```
+  FV_adjusted = PV * (1 + r)^t
+  ``` 
+  Where:
+  - `FV_adjusted` = Future Value adjusted for inflation
+  - `PV` = Present Value
+  - `r` = Inflation Rate
+  - `t` = Number of Years
+  
+
+**References:**
+- [CPI Inflation Calculator](https://www.dosm.gov.my/cpi_calc/index.php)
+- [Compound Interest Calculator](https://www.thecalculatorsite.com/finance/calculators/compound-interest-formula)
+- [Compound Interest - Wikipedia](https://en.wikipedia.org/wiki/Compound_interest)
+- [Future Value - Wikipedia](https://en.wikipedia.org/wiki/Future_value)
 """)
