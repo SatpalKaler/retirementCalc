@@ -1,3 +1,0 @@
-* design + colors
-* disclaimer grey out
-* add formulas with links to sources

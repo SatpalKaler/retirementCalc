@@ -2,6 +2,16 @@ import streamlit as st
 import math
 from datetime import datetime
 
+# Configure dark mode text color based on theme
+if st.get_option("theme.base") == "dark":
+    st.markdown("""
+        <style>
+            body, p, h1, h2, h3, h4, h5, h6, li, span {
+                color: white !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="Retirement Calculator",  # Title shown on the browser tab
     page_icon="💰",  # You can use an emoji or a favicon file
@@ -14,37 +24,20 @@ def calculate_future_value(P, r, n, t, PMT):
     A = P * (1 + r/n)**(n*t) + PMT * (((1 + r/n)**(n*t) - 1) / (r/n))
     return A
 
-# Custom CSS for consistent, muted colors and vibrant highlights
+# Custom CSS for consistent, muted colors and vibrant highlights that respect theme
 st.markdown("""
     <style>
-        .main {
-            background-color: #f0f2f6;
-            color: #333333;
+        /* Light theme styles */
+        [data-theme="light"] {
+            --text-color: #666666;
         }
-        .stButton>button {
-            background-color: #4CAF50;
-            color: white;
+        
+        /* Dark theme styles */
+        [data-theme="dark"] {
+            --text-color: #E0E0E0;
         }
-        .stMetric {
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 5px;
-            padding: 10px;
-        }
-        .stMetric label {
-            color: #4CAF50;
-        }
-        .stExpander {
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 5px;
-        }
-        .stExpander>div>div {
-            background-color: #f9f9f9;
-        }
-        .stMarkdown p {
-            color: #333333;
-        }
+        
+        /* Rest of your existing CSS... */
     </style>
 """, unsafe_allow_html=True)
 
@@ -95,32 +88,34 @@ real_future_epf = future_epf / ((1 + inflation_rate) ** years_to_retirement)
 real_future_investments = future_investments / ((1 + inflation_rate) ** years_to_retirement)
 real_net_worth = real_future_epf + real_future_investments
 
-# Main area for results at the bottom
-st.subheader('Results')
+# # Main area for results at the bottom
+# st.subheader('Results')
 
 # Organize results into two sections using columns
 col1, col2 = st.columns(2)
 
 # Separate nominal and inflation into different rows
-st.markdown("### Nominal Values")
+# st.markdown("### Nominal Values")
 col1, col2 = st.columns([0.5, 0.5])
+# Net Worth Section
+st.markdown("<p style='font-size: 16px; color: #666; margin-top: 0; text-decoration: underline;'>Net Worth by Retirement</p>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='font-size: clamp(40px, 10vw, 88px); margin-bottom: 0; margin-top: -40px;'>{currency}{net_worth_by_retirement:,.2f}</h1>", unsafe_allow_html=True)
 
-with col1:
-    st.metric(label="Net Worth by Retirement", value=f"{currency}{net_worth_by_retirement:,.2f}")
+# Breakdown of net worth
+st.markdown("<div style='font-size: 12px; color: var(--text-color); margin-top: 20px;'>", unsafe_allow_html=True)
+st.markdown(f"EPF: {currency}{future_epf:,.2f} • Investments: {currency}{future_investments:,.2f}", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
-with col2:
-    st.markdown(f"<p style='color: #4CAF50;'> * Your EPF will be worth: {currency}{future_epf:,.2f}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color: #4CAF50;'> * Your investments will be worth: {currency}{future_investments:,.2f}</p>", unsafe_allow_html=True)
+# Inflation adjusted section with spacing
+st.markdown("<div style='margin-top: 80px;'>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 16px; color: #666; margin-top: 0; text-decoration: underline;'>Inflation-Adjusted Net Worth</p>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='font-size: clamp(40px, 10vw, 88px); margin-bottom: 0; margin-top: -40px;'>{currency}{real_net_worth:,.2f}</h1>", unsafe_allow_html=True)
 
-st.markdown("### Inflation-Adjusted Values")
-col3, col4 = st.columns([0.5, 0.5])
+# Breakdown of net worth
+st.markdown("<div style='font-size: 12px; color: var(--text-color); margin-top: 20px;'>", unsafe_allow_html=True)
+st.markdown(f"EPF: {currency}{future_epf:,.2f} • Investments: {currency}{future_investments:,.2f}", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
-with col3:
-    st.metric(label="Inflation-Adjusted Net Worth", value=f"{currency}{real_net_worth:,.2f}")
-
-with col4:
-    st.markdown(f"<p style='color: #4CAF50;'>- Your EPF will be worth: {currency}{real_future_epf:,.2f}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color: #4CAF50;'>- Your investments will be worth: {currency}{real_future_investments:,.2f}</p>", unsafe_allow_html=True)
 
 
 # Calculate future burger cost based on inflation
@@ -135,30 +130,34 @@ current_burger_cost = initial_burger_cost_1993 * math.pow((1 + inflation_rate), 
 future_burger_cost = current_burger_cost * math.pow((1 + inflation_rate), years_to_retirement)
 
 # Add a dropdown to explain purchasing power
-with st.expander("**How purchasing power & inflation works!**"):
+with st.expander("💡 **How Inflation Works**"):
     st.write(f"""
-    If you had **RM10,000** in 1993 ({years_since_1993} years ago), adjusted for inflation, that amount would be equivalent to **RM20,458** today. 
+    Imagine this:
+             
+    RM10,000 in 1993 ({years_since_1993} years ago) could buy the same things as **RM{10000 * math.pow((1 + inflation_rate), years_since_1993):,.2f}** today because prices have increased over {years_since_1993} years due to inflation.
     
-    This means the purchasing power of **RM20,458** now is the same as **RM10,000** in 1993.
+    For example, a burger that cost **RM5** in 1993 now would cost **RM{current_burger_cost:,.2f}**.
 
-    For example, if a burger cost **RM5** in 1993, it would now cost **RM{current_burger_cost:,.2f}** due to inflation.
-
-    Using the same logic, if you have **{currency}{net_worth_by_retirement:,.2f}** in the future, it will have the purchasing power of **{currency}{real_net_worth:,.2f}** in today’s value.
-
-    So, if a burger costs **RM{current_burger_cost:,.2f}** today, it could cost **RM{future_burger_cost:,.2f}** in **{years_to_retirement}** years.
+    Looking into the future:
+    
+    If you have **{currency}{net_worth_by_retirement:,.2f}** in {years_to_retirement} years, it will  buy as much as **{currency}{real_net_worth:,.2f}** can today because money loses value over time.
+    
+    That means a burger costing **RM{current_burger_cost:,.2f}** today could cost **RM{future_burger_cost:,.2f}** in {years_to_retirement} years.
     """)
-
 # Disclaimer and details in the sidebar
 st.sidebar.markdown("""
 **Disclaimer:** This calculator provides an estimate based on the inputs and assumptions provided. Actual results may vary.
 
+---
+                    
 **Assumptions:**
 - EPF annual return: 5%
 - Investment annual return: 7%
 - Inflation rate: 3%
 - Compounding frequency: Monthly
-""")
-st.sidebar.markdown("""
+
+---
+                    
 **Formulas:**
 - **Future Value (FV):**
   ```
@@ -168,19 +167,21 @@ st.sidebar.markdown("""
   - `P` = Present Value
   - `r` = Annual Interest Rate
   - `n` = Number of Compounding Periods per Year
-  - `t` = Number of Years
-  - `PMT` = Payment per Period
+  - `t` = Number of Years  - `PMT` = Payment per Period
 
+  &nbsp;
+                    
 - **Inflation-Adjusted Value:**
   ```
   FV_adjusted = PV * (1 + r)^t
-  ``` 
+  ```
   Where:
   - `FV_adjusted` = Future Value adjusted for inflation
   - `PV` = Present Value
   - `r` = Inflation Rate
   - `t` = Number of Years
   
+  ---
 
 **References:**
 - [CPI Inflation Calculator](https://www.dosm.gov.my/cpi_calc/index.php)
