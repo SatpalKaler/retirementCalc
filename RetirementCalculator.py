@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Retirement Calculator",
     page_icon="💰",
     layout="centered",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Configure dark mode text color based on theme
@@ -31,11 +31,18 @@ st.markdown("""
         /* Light theme styles */
         [data-theme="light"] {
             --text-color: #666666;
+            --info-bg: #f0f2f6;
         }
         
         /* Dark theme styles */
         [data-theme="dark"] {
             --text-color: #E0E0E0;
+            --info-bg: #262730;
+        }
+        
+        /* Update the sidebar notice background */
+        div[data-testid="stMarkdown"] div {
+            background-color: var(--info-bg) !important;
         }
         
         /* Rest of your existing CSS... */
@@ -43,6 +50,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title('Retirement Calculator')
+
 # Input fields in a card at the top
 with st.expander("**Input Information**", expanded=True):
     # Currency selection
@@ -190,3 +198,13 @@ st.sidebar.markdown("""
 - [Compound Interest - Wikipedia](https://en.wikipedia.org/wiki/Compound_interest)
 - [Future Value - Wikipedia](https://en.wikipedia.org/wiki/Future_value)
 """)
+
+# Add a prominent message about the sidebar
+st.markdown("""
+    <div style='padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin-bottom: 1rem;'>
+        <p style='margin: 0; display: flex; align-items: center;'>
+            <span style='font-size: 1.2em; margin-right: 0.5rem;'>👉</span>
+            <strong>Click the arrow in the top-left corner to see important assumptions and formulas!</strong>
+        </p>
+    </div>
+""", unsafe_allow_html=True)
