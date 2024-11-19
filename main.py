@@ -1,4 +1,6 @@
 import streamlit as st
+import math
+from datetime import datetime
 
 # Function to calculate future value
 def calculate_future_value(P, r, n, t, PMT):
@@ -8,32 +10,66 @@ def calculate_future_value(P, r, n, t, PMT):
 # Set the page configuration to wide layout and hide the sidebar by default
 st.set_page_config(layout="centered", initial_sidebar_state="collapsed")
 
+# Custom CSS for consistent, muted colors and vibrant highlights
+st.markdown("""
+    <style>
+        .main {
+            background-color: #f0f2f6;
+            color: #333333;
+        }
+        .stButton>button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .stMetric {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .stMetric label {
+            color: #4CAF50;
+        }
+        .stExpander {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+        }
+        .stExpander>div>div {
+            background-color: #f9f9f9;
+        }
+        .stMarkdown p {
+            color: #333333;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title('Retirement Calculator')
 # Input fields in a card at the top
 with st.expander("**Input Information**", expanded=True):
     # Currency selection
-    col1, col2, col3 = st.columns([0.3, 0.7, 0.7])
+    col1, col2, col3 = st.columns([0.2, 0.3, 0.3])
     
     with col1:
         currency = st.text_input('Currency', value='RM')
     with col2:
-        current_age = st.number_input('Current Age', min_value=0, max_value=100, value=30)
+        current_age = st.number_input('Current Age', min_value=0, max_value=100, value=0, step=1)
     with col3:
-        retirement_age = st.number_input('Expected Age of Retirement', min_value=0, max_value=100, value=65)
+        retirement_age = st.number_input('Expected Age of Retirement', min_value=0, max_value=100, value=0, step=1)
 
     col4, col5 = st.columns([0.5, 0.5])
     
     with col4:
-        current_epf = float(st.text_input(f'Current EPF Amount ({currency})', value='10,000').replace(',', ''))
+        current_epf = float(st.text_input(f'🏦 Current EPF Amount ({currency})', value='0').replace(',', ''))
     with col5:
-        monthly_epf_contribution = float(st.text_input(f'Monthly EPF Contribution (Total) ({currency})', value='500').replace(',', ''))
+        monthly_epf_contribution = st.slider(f'🏦 Monthly EPF Contribution (Total) ({currency})', min_value=0, max_value=10000, value=0, step=100)
     
     col6, col7 = st.columns([0.5, 0.5])
     
     with col6:
-        current_investments = float(st.text_input(f'Current Investments ({currency})', value='50,000').replace(',', ''))
+        current_investments = float(st.text_input(f'📈 Current Investments ({currency})', value='0').replace(',', ''))
     with col7:
-        monthly_investments = float(st.text_input(f'Monthly Investments ({currency})', value='1,000').replace(',', ''))
+        monthly_investments = st.slider(f'📈 Monthly Investments ({currency})', min_value=0, max_value=20000, value=0, step=100)
 
 # Constants
 epf_annual_rate = 0.05  # 5% annual return for EPF
@@ -43,6 +79,7 @@ compounding_frequency = 12  # Monthly compounding
 
 # Calculate the number of years to retirement
 years_to_retirement = retirement_age - current_age
+
 
 # Calculate future values (nominal)
 future_epf = calculate_future_value(current_epf, epf_annual_rate, compounding_frequency, years_to_retirement, monthly_epf_contribution)
@@ -58,36 +95,43 @@ real_total_fund = real_future_epf + real_future_investments
 st.subheader('Results')
 
 # Total fund by retirement
-st.markdown(f"<h3 style='color: #0000FF;'>Total fund by the time you retire: {currency}{total_fund_by_retirement:,.2f}</h3>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #000000;'>- Your EPF will be worth: {currency}{future_epf:,.2f}</p>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #000000;'>- Your investments will be worth: {currency}{future_investments:,.2f}</p>", unsafe_allow_html=True)
+st.metric(label="Total Fund by Retirement", value=f"{currency}{total_fund_by_retirement:,.2f}")
+st.markdown(f"<p style='color: #4CAF50;'> * Your EPF will be worth: {currency}{future_epf:,.2f}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #4CAF50;'> * Your investments will be worth: {currency}{future_investments:,.2f}</p>", unsafe_allow_html=True)
 
 # Inflation-adjusted total fund
-st.markdown(f"<h3 style='color: #008000;'>Total fund inflation-adjusted: {currency}{real_total_fund:,.2f}</h3>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #000000;'>- Your EPF will be worth: {currency}{real_future_epf:,.2f}</p>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #000000;'>- Your investments will be worth: {currency}{real_future_investments:,.2f}</p>", unsafe_allow_html=True)
+st.metric(label="Inflation-Adjusted Total Fund", value=f"{currency}{real_total_fund:,.2f}")
+st.markdown(f"<p style='color: #4CAF50;'>- Your EPF will be worth: {currency}{real_future_epf:,.2f}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='color: #4CAF50;'>- Your investments will be worth: {currency}{real_future_investments:,.2f}</p>", unsafe_allow_html=True)
+
 
 # Calculate future burger cost based on inflation
-current_burger_cost = 5  # Example current cost of a burger
-future_burger_cost = current_burger_cost * ((1 + inflation_rate) ** years_to_retirement)
+initial_burger_cost_1993 = 5.00  # Initial cost of a burger in 1993
+
+
+current_year = datetime.now().year
+years_since_1993 = current_year - 1993
+current_burger_cost = initial_burger_cost_1993 * math.pow((1 + inflation_rate), years_since_1993)
+
+# Calculate future burger cost based on inflation
+future_burger_cost = current_burger_cost * math.pow((1 + inflation_rate), years_to_retirement)
 
 # Add a dropdown to explain purchasing power
 with st.expander("**How purchasing power & inflation works!**"):
     st.write(f"""
-    If you had **RM10,000** in 1993 (30 years ago), adjusted for inflation, that amount would be equivalent to **RM20,458** today. 
+    If you had **RM10,000** in 1993 ({years_since_1993} years ago), adjusted for inflation, that amount would be equivalent to **RM20,458** today. 
     
     This means the purchasing power of **RM20,458** now is the same as **RM10,000** in 1993.
 
-    For example, if a burger cost **RM5** in 1993, it would now cost **RM10.25** due to inflation.
+    For example, if a burger cost **RM5** in 1993, it would now cost **RM{current_burger_cost:,.2f}** due to inflation.
 
     Using the same logic, if you have **{currency}{total_fund_by_retirement:,.2f}** in the future, it will have the purchasing power of **{currency}{real_total_fund:,.2f}** in today’s value.
 
-    So, if a burger costs **RM10.25** today, it could cost **RM{future_burger_cost:,.2f}** in **{years_to_retirement}** years.
+    So, if a burger costs **RM{current_burger_cost:,.2f}** today, it could cost **RM{future_burger_cost:,.2f}** in **{years_to_retirement}** years.
     """)
 
 # Disclaimer and details in the sidebar
 st.sidebar.markdown("""
----
 **Disclaimer:** This calculator provides an estimate based on the inputs and assumptions provided. Actual results may vary.
 
 **Assumptions:**
