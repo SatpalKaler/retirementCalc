@@ -71,7 +71,8 @@ streamlit run app.py
 ## 🔮 **Future Plans**
 * Add customization for assumptions
 * Introduce dynamic graphs for better visualization
-* Add AI-integration for advice/discussion on personal finance
+* Add AI-agents for advice/discussion on personal finance
+* Life Calculator - rough estimate of how much your retirement will last until your death
 
 Feel free to contribute or report issues in the issues section! 
 
