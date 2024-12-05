@@ -229,7 +229,7 @@
 import { ref, computed, watch } from 'vue'
 import { debounce } from 'lodash'
 import InflationExplanation from '@/components/inflation.vue'
-import { inject } from '@vercel/analytics';
+import { inject } from '@vercel/analytics/browser';
 
 // Call inject() once when your app starts
 inject();
