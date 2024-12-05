@@ -1,5 +1,4 @@
 <template>
-  <Analytics />
   <v-container>
     <v-container>
       <v-row justify="center">
@@ -230,7 +229,11 @@
 import { ref, computed, watch } from 'vue'
 import { debounce } from 'lodash'
 import InflationExplanation from '@/components/inflation.vue'
-import { Analytics } from "@vercel/analytics/react"
+import { inject } from '@vercel/analytics';
+
+// Call inject() once when your app starts
+inject();
+
 // Input fields
 const currency = ref('RM')
 const currentAge = ref(0)
