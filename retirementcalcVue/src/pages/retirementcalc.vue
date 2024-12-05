@@ -47,8 +47,8 @@
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
-                      v-model="currentEpf"
-                      :label="`Current EPF Amount (${currency})`"
+                      v-model="currentRetirementAccount"
+                      :label="`Current Retirement Account (${currency})`"
                       prefix="🏦"
                       variant="outlined"
                       density="compact"
@@ -56,8 +56,8 @@
                   </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field
-                      v-model="monthlyEpfContribution"
-                      :label="`Monthly EPF Contribution (${currency})`"
+                      v-model="monthlyRetirementAccountContribution"
+                      :label="`Monthly Retirement Account Contribution (${currency})`"
                       prefix="🏦"
                       variant="outlined"
                       density="compact"
@@ -101,8 +101,8 @@
                 </span>
               </div>
               <div class="text-caption mt-2">
-                EPF: <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedFutureEpf) }}
+                Retirement Account: <span class="rolling-number" :class="{ 'final': isFinal }">
+                  {{ formatCurrency(displayedFutureRetirementAccount) }}
                 </span> • 
                 Investments: <span class="rolling-number" :class="{ 'final': isFinal }">
                   {{ formatCurrency(displayedFutureInvestments) }}
@@ -120,8 +120,8 @@
                 </span>
               </div>
               <div class="text-caption mt-2">
-                EPF: <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedRealFutureEpf) }}
+                Retirement Account: <span class="rolling-number" :class="{ 'final': isFinal }">
+                  {{ formatCurrency(displayedRealFutureRetirementAccount) }}
                 </span> • 
                 Investments: <span class="rolling-number" :class="{ 'final': isFinal }">
                   {{ formatCurrency(displayedRealFutureInvestments) }}
@@ -234,14 +234,14 @@ import InflationExplanation from '@/components/inflation.vue'
 const currency = ref('RM')
 const currentAge = ref(0)
 const retirementAge = ref(0)
-const currentEpf = ref(0)
-const monthlyEpfContribution = ref(0)
+const currentRetirementAccount = ref(0)
+const monthlyRetirementAccountContribution = ref(0)
 const currentInvestments = ref(0)
 const monthlyInvestments = ref(0)
 const inputPanel = ref(0)
   
 // Constants
-const EPF_ANNUAL_RATE = 0.05
+const RetirementAccount_ANNUAL_RATE = 0.05
 const INVESTMENT_ANNUAL_RATE = 0.10
 const INFLATION_RATE = 0.03
 const COMPOUNDING_FREQUENCY = 12
@@ -256,13 +256,13 @@ const calculateFutureValue = (P, r, n, t, PMT) => {
   return P * Math.pow(1 + r/n, n*t) + PMT * ((Math.pow(1 + r/n, n*t) - 1) / (r/n))
 }
   
-const futureEpf = computed(() => {
+const futureRetirementAccount = computed(() => {
   return calculateFutureValue(
-    Number(currentEpf.value),
-    EPF_ANNUAL_RATE,
+    Number(currentRetirementAccount.value),
+    RetirementAccount_ANNUAL_RATE,
     COMPOUNDING_FREQUENCY,
     yearsToRetirement.value,
-    monthlyEpfContribution.value
+    monthlyRetirementAccountContribution.value
   )
 })
   
@@ -276,18 +276,18 @@ const futureInvestments = computed(() => {
   )
 })
   
-const netWorthByRetirement = computed(() => futureEpf.value + futureInvestments.value)
+const netWorthByRetirement = computed(() => futureRetirementAccount.value + futureInvestments.value)
   
 // Inflation adjusted values
-const realFutureEpf = computed(() => 
-  futureEpf.value / Math.pow(1 + INFLATION_RATE, yearsToRetirement.value)
+const realFutureRetirementAccount = computed(() => 
+  futureRetirementAccount.value / Math.pow(1 + INFLATION_RATE, yearsToRetirement.value)
 )
   
 const realFutureInvestments = computed(() => 
   futureInvestments.value / Math.pow(1 + INFLATION_RATE, yearsToRetirement.value)
 )
   
-const realNetWorth = computed(() => realFutureEpf.value + realFutureInvestments.value)
+const realNetWorth = computed(() => realFutureRetirementAccount.value + realFutureInvestments.value)
   
 // Burger cost calculations
 const INITIAL_BURGER_COST_1993 = 5.00
@@ -307,7 +307,7 @@ const formatCurrency = (value) => {
 }
   
 const assumptions = {
-  'EPF annual return': '5%',
+  'Retirement Account annual return': '5%',
   'Investment annual return': '10%',
   'Inflation rate (past & future)': '3%',
   'Compounding frequency': 'Monthly'
@@ -334,10 +334,10 @@ const references = [
   
 // Add new refs for displayed results
 const displayedNetWorth = ref(0)
-const displayedFutureEpf = ref(0)
+const displayedFutureRetirementAccount = ref(0)
 const displayedFutureInvestments = ref(0)
 const displayedRealNetWorth = ref(0)
-const displayedRealFutureEpf = ref(0)
+const displayedRealFutureRetirementAccount = ref(0)
 const displayedRealFutureInvestments = ref(0)
 const isLoading = ref(false)
   
@@ -367,19 +367,19 @@ const updateDisplayedValues = debounce(() => {
     
     // Update displayed values...
     displayedNetWorth.value = netWorthByRetirement.value * (1 + (Math.random() - 0.5) * randomFactor)
-    displayedFutureEpf.value = futureEpf.value * (1 + (Math.random() - 0.5) * randomFactor)
+    displayedFutureRetirementAccount.value = futureRetirementAccount.value * (1 + (Math.random() - 0.5) * randomFactor)
     displayedFutureInvestments.value = futureInvestments.value * (1 + (Math.random() - 0.5) * randomFactor)
     displayedRealNetWorth.value = realNetWorth.value * (1 + (Math.random() - 0.5) * randomFactor)
-    displayedRealFutureEpf.value = realFutureEpf.value * (1 + (Math.random() - 0.5) * randomFactor)
+    displayedRealFutureRetirementAccount.value = realFutureRetirementAccount.value * (1 + (Math.random() - 0.5) * randomFactor)
     displayedRealFutureInvestments.value = realFutureInvestments.value * (1 + (Math.random() - 0.5) * randomFactor)
     
     if (currentStep >= steps) {
       // Set final values
       displayedNetWorth.value = netWorthByRetirement.value
-      displayedFutureEpf.value = futureEpf.value
+      displayedFutureRetirementAccount.value = futureRetirementAccount.value
       displayedFutureInvestments.value = futureInvestments.value
       displayedRealNetWorth.value = realNetWorth.value
-      displayedRealFutureEpf.value = realFutureEpf.value
+      displayedRealFutureRetirementAccount.value = realFutureRetirementAccount.value
       displayedRealFutureInvestments.value = realFutureInvestments.value
       isLoading.value = false
       isFinal.value = true // Trigger final state
@@ -390,7 +390,7 @@ const updateDisplayedValues = debounce(() => {
   
 // Watch for changes in input values
 watch(
-  [currentAge, retirementAge, currentEpf, monthlyEpfContribution, currentInvestments, monthlyInvestments],
+  [currentAge, retirementAge, currentRetirementAccount, monthlyRetirementAccountContribution, currentInvestments, monthlyInvestments],
   () => {
     updateDisplayedValues()
   }
