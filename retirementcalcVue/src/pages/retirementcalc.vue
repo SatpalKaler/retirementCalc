@@ -7,6 +7,15 @@
             <h1 class="text-h2 font-weight-bold" style="font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
               Retirement Calculator
             </h1>
+            <v-switch
+              v-model="isDark"
+              :true-icon="'mdi-weather-night'"
+              :false-icon="'mdi-weather-sunny'"
+              label=""
+              hide-details
+              inset
+              @change="toggleTheme"
+            ></v-switch>
           </div>
 
           <!-- Input Section -->
@@ -245,6 +254,7 @@ import { ref, computed, watch } from 'vue'
 import { debounce } from 'lodash'
 import InflationExplanation from '@/components/inflation.vue'
 import KofiModal from '@/components/KofiModal.vue'
+import { useTheme } from 'vuetify'
 
 
 // Input fields
@@ -414,6 +424,13 @@ watch(
 )
 
 const showKofiModal = ref(false)
+
+const theme = useTheme()
+const isDark = ref(theme.global.current.value.dark)
+
+const toggleTheme = () => {
+  theme.global.name.value = isDark.value ? 'dark' : 'light'
+}
 </script>
 
 <style scoped>
@@ -447,5 +464,15 @@ const showKofiModal = ref(false)
 /* Optional: Add a subtle glow effect */
 .rolling-number.final {
   text-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.v-switch {
+  margin-left: auto;
+}
+
+@media (max-width: 600px) {
+  .text-h2 {
+    font-size: 1.75rem !important;
+  }
 }
 </style>
