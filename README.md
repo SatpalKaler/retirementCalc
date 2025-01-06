@@ -49,20 +49,11 @@ FV_adjusted = FV / (1 + inflation_rate)^t
 
 ## 🚀 **Installation**
 
-1. Clone the repository:
+Clone the repository:
 ```
 git clone https://github.com/yourusername/retirement-calculator.git
 ```
 
-2. Install dependencies:
-```
-pip install streamlit
-```
-
-3. Run the app:
-```
-streamlit run app.py
-```
 
 ## ⚠️ **Disclaimer**
 
