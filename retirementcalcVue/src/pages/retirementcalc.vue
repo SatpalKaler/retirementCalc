@@ -3,93 +3,91 @@
     <v-container>
       <v-row justify="center">
         <v-col cols="12" md="10">
-        <h1 class="text-h2 mb-6 font-weight-bold" style="font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-          Retirement Calculator
-        </h1>
-    
+          <div class="d-flex align-center justify-space-between mb-6">
+            <h1 class="text-h2 font-weight-bold" style="font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+              Retirement Calculator
+            </h1>
+          </div>
+
           <!-- Input Section -->
-          <v-expansion-panels v-model="inputPanel" :variant="'accordion'">
-            <v-expansion-panel title="Input Information" :value="0">
-              <v-expansion-panel-text>
-                <v-row>
-                  <v-col cols="12" md="2">
-                    <v-text-field
-                      v-model="currency"
-                      label="Currency"
-                      variant="outlined"
-                      density="compact"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="5">
-                    <v-text-field
-                      v-model="currentAge"
-                      label="Current Age"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      min="0"
-                      max="100"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="5">
-                    <v-text-field
-                      v-model="retirementAge"
-                      label="Expected Age of Retirement"
-                      type="number"
-                      variant="outlined"
-                      density="compact"
-                      min="0"
-                      max="100"
-                    />
-                  </v-col>
-                </v-row>
-    
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="currentRetirementAccount"
-                      :label="`Current Retirement Account (${currency})`"
-                      prefix="🏦"
-                      variant="outlined"
-                      density="compact"
-                    />
-                  </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="monthlyRetirementAccountContribution"
-                      :label="`Monthly Retirement Account Contribution (${currency})`"
-                      prefix="🏦"
-                      variant="outlined"
-                      density="compact"
-                      type="number"
-                    />
-                  </v-col>
-                </v-row>
-    
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="currentInvestments"
-                      :label="`Current Investments (${currency})`"
-                      prefix="📈"
-                      variant="outlined"
-                      density="compact"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="monthlyInvestments"
-                      :label="`Monthly Investments (${currency})`"
-                      prefix="📈"
-                      variant="outlined"
-                      density="compact"
-                      type="number"
-                    />
-                  </v-col>
-                </v-row>
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
+          <v-card class="pa-6 mb-6">
+            <v-row>
+              <v-col cols="12" md="2">
+                <v-text-field
+                  v-model="currency"
+                  label="Currency"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="12" md="5">
+                <v-text-field
+                  v-model="currentAge"
+                  label="Current Age"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  max="100"
+                />
+              </v-col>
+              <v-col cols="12" md="5">
+                <v-text-field
+                  v-model="retirementAge"
+                  label="Expected Age of Retirement"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  max="100"
+                />
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="currentRetirementAccount"
+                  :label="`Current Retirement Account (${currency})`"
+                  prefix="🏦"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+            <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="monthlyRetirementAccountContribution"
+                  :label="`Monthly Retirement Account Contribution (${currency})`"
+                  prefix="🏦"
+                  variant="outlined"
+                  density="compact"
+                  type="number"
+                />
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="currentInvestments"
+                  :label="`Current Investments (${currency})`"
+                  prefix="📈"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="monthlyInvestments"
+                  :label="`Monthly Investments (${currency})`"
+                  prefix="📈"
+                  variant="outlined"
+                  density="compact"
+                  type="number"
+                />
+              </v-col>
+            </v-row>
+          </v-card>
     
           <!-- Results Section -->
           <v-card class="mt-6 pa-6">
@@ -219,6 +217,23 @@
               </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
+
+          <!-- Add Support section at bottom -->
+          <div class="d-flex justify-center mt-6">
+            <v-btn
+              color="primary"
+              @click="showKofiModal = true"
+              prepend-icon="mdi-coffee"
+              class="support-btn"
+            >
+              Support this creator
+            </v-btn>
+          </div>
+
+          <KofiModal
+            v-model="showKofiModal"
+            @close="showKofiModal = false"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -229,6 +244,7 @@
 import { ref, computed, watch } from 'vue'
 import { debounce } from 'lodash'
 import InflationExplanation from '@/components/inflation.vue'
+import KofiModal from '@/components/KofiModal.vue'
 
 
 // Input fields
@@ -396,6 +412,8 @@ watch(
     updateDisplayedValues()
   }
 )
+
+const showKofiModal = ref(false)
 </script>
 
 <style scoped>
