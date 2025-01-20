@@ -108,38 +108,38 @@
     
           <!-- Results Section -->
           <v-card class="mt-6 pa-6">
-            <div class="text-h6 mb-4">Net Worth by Retirement <span class="text-caption">(Nominal)</span></div>
+            <div class="text-h6 mb-8">Inflation-Adjusted Net Worth <span class="text-caption">(Real)</span></div>
             <div>
-              <div class="text-h2">
+              <div :class="{'text-h1': $vuetify.display.mdAndUp, 'text-h2': $vuetify.display.mdAndDown}">
                 <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedNetWorth) }}
+                  {{ formatCurrency(displayedRealNetWorth) }}
                 </span>
               </div>
-              <div class="text-caption mt-2">
+              <div class="text-caption mt-8">
                 Retirement Account: <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedFutureRetirementAccount) }}
+                  {{ formatCurrency(displayedRealFutureRetirementAccount) }}
                 </span> • 
                 Investments: <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedFutureInvestments) }}
+                  {{ formatCurrency(displayedRealFutureInvestments) }}
                 </span>
               </div>
             </div>
 
             <v-divider class="my-6"></v-divider>
 
-            <div class="text-h6 mb-4">Inflation-Adjusted Net Worth</div>
-            <div>
-              <div class="text-h2">
+            <div class="text-h6 mb-0" :class="{ 'greyed-out': isFinal }">Net Worth <span class="text-caption">(Nominal)</span></div>
+            <div :class="{ 'greyed-out': isFinal }">
+              <div class="text-h5">
                 <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedRealNetWorth) }}
+                  {{ formatCurrency(displayedNetWorth) }}
                 </span>
               </div>
-              <div class="text-caption mt-2">
+              <div class="text-caption mt-0">
                 Retirement Account: <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedRealFutureRetirementAccount) }}
+                  {{ formatCurrency(displayedFutureRetirementAccount) }}
                 </span> • 
                 Investments: <span class="rolling-number" :class="{ 'final': isFinal }">
-                  {{ formatCurrency(displayedRealFutureInvestments) }}
+                  {{ formatCurrency(displayedFutureInvestments) }}
                 </span>
               </div>
             </div>
@@ -470,9 +470,7 @@ const toggleTheme = () => {
 }
 
 /* Optional: Add a subtle glow effect */
-.rolling-number.final {
-  text-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
-}
+
 
 .v-switch {
   margin-left: auto;
@@ -497,5 +495,10 @@ const toggleTheme = () => {
   width: 100%;
   height: 3px;
   background-color: #009688;
+}
+
+.greyed-out {
+  opacity: 0.6;
+  transition: opacity 0.5s ease-out;
 }
 </style>
