@@ -4,13 +4,14 @@
       <v-row justify="center">
         <v-col cols="12" md="10">
           <div class="d-flex align-center justify-space-between mb-6">
-            <h1 class="text-h2 font-weight-bold" style="font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+            <h1 class="text-h2 font-weight-bold custom-title" style="font-family: 'Playfair Display', serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
               Retirement Calculator
             </h1>
             <v-switch
               v-model="isDark"
               :true-icon="'mdi-weather-night'"
               :false-icon="'mdi-weather-sunny'"
+              :color="'teal'"
               label=""
               hide-details
               inset
@@ -27,6 +28,7 @@
                   label="Currency"
                   variant="outlined"
                   density="compact"
+                  color="teal"
                 />
               </v-col>
               <v-col cols="12" md="5">
@@ -38,6 +40,7 @@
                   density="compact"
                   min="0"
                   max="100"
+                  color="teal"
                 />
               </v-col>
               <v-col cols="12" md="5">
@@ -49,6 +52,7 @@
                   density="compact"
                   min="0"
                   max="100"
+                  color="teal"
                 />
               </v-col>
             </v-row>
@@ -61,6 +65,7 @@
                   prefix="🏦"
                   variant="outlined"
                   density="compact"
+                  color="teal"
                 />
               </v-col>
             <v-col cols="12" md="6">
@@ -71,6 +76,7 @@
                   variant="outlined"
                   density="compact"
                   type="number"
+                  color="teal"
                 />
               </v-col>
             </v-row>
@@ -83,6 +89,7 @@
                   prefix="📈"
                   variant="outlined"
                   density="compact"
+                  color="teal"
                 />
               </v-col>
               <v-col cols="12" md="6">
@@ -93,6 +100,7 @@
                   variant="outlined"
                   density="compact"
                   type="number"
+                  color="teal"
                 />
               </v-col>
             </v-row>
@@ -230,7 +238,7 @@
           <!-- Add Support section at bottom -->
           <div class="d-flex justify-center mt-6">
             <v-btn
-              color="primary"
+              color="teal"
               @click="showKofiModal = true"
               prepend-icon="mdi-coffee"
               class="support-btn"
@@ -474,5 +482,20 @@ const toggleTheme = () => {
   .text-h2 {
     font-size: 1.75rem !important;
   }
+}
+
+.custom-title {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #009688;
 }
 </style>
