@@ -108,7 +108,24 @@
     
           <!-- Results Section -->
           <v-card class="mt-6 pa-6">
-            <div class="text-h6 mb-8">Inflation-Adjusted Net Worth <span class="text-caption">(Real)</span></div>
+            <div class="text-h6 mb-8 d-flex align-center">
+              Inflation-Adjusted Net Worth <span class="text-caption"> &nbsp (Real) </span>
+              <v-tooltip location="top" max-width="300">
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    v-bind="props"
+                    size="small"
+                    color="teal"
+                    class="ms-2"
+                  >
+                    mdi-information-outline
+                  </v-icon>
+                </template>
+                <span>
+                  "Real" values are adjusted for inflation, showing the actual purchasing power of your money. This is more important to focus on than nominal values because it represents what your savings will actually be worth when you retire.
+                </span>
+              </v-tooltip>
+            </div>
             <div>
               <div :class="{'text-h1': $vuetify.display.mdAndUp, 'text-h2': $vuetify.display.mdAndDown}">
                 <span class="rolling-number" :class="{ 'final': isFinal }">
@@ -143,6 +160,23 @@
                 </span>
               </div>
             </div>
+          </v-card>
+    
+          <!-- Chart Section -->
+          <v-card v-if="isFinal" class="mt-6 pa-6">
+            <InvestmentChart
+              :current-age="Number(currentAge)"
+              :retirement-age="Number(retirementAge)"
+              :current-retirement-account="Number(currentRetirementAccount)"
+              :monthly-retirement-account-contribution="Number(monthlyRetirementAccountContribution)"
+              :current-investments="Number(currentInvestments)"
+              :monthly-investments="Number(monthlyInvestments)"
+              :retirement-account-annual-rate="RetirementAccount_ANNUAL_RATE"
+              :investment-annual-rate="INVESTMENT_ANNUAL_RATE"
+              :inflation-rate="INFLATION_RATE"
+              :compounding-frequency="COMPOUNDING_FREQUENCY"
+              :currency="currency"
+            />
           </v-card>
     
           <!-- Inflation Explanation -->
@@ -263,6 +297,7 @@ import { debounce } from 'lodash'
 import InflationExplanation from '@/components/inflation.vue'
 import KofiModal from '@/components/KofiModal.vue'
 import { useTheme } from 'vuetify'
+import InvestmentChart from '@/components/InvestmentChart.vue'
 
 
 // Input fields
