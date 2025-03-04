@@ -139,10 +139,10 @@ const createOrUpdateChart = () => {
           tooltip: {
             bodyFont: {
               weight: 'bold',
-              size: 25,
+              size: 15,
             },
             titleFont: {
-              size: 25,
+              size: 15,
             },
             callbacks: {
               label: function(context) {
