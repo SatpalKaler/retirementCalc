@@ -144,6 +144,74 @@
               </div>
             </div>
           </v-card>
+
+          <!-- Passive Income Calculator -->
+          <v-card class="mt-6 pa-6">
+            <div class="text-h6 mb-4">Passive Income Calculator</div>
+            <p class="text-body-2 mb-4">
+              Calculate how much monthly income your retirement savings could generate if invested in safe instruments.
+            </p>
+
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="passiveIncomeRate"
+                  label="Annual Interest Rate (%)"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  color="teal"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="monthlyWithdrawal"
+                  :label="`Monthly Withdrawal (${currency})`"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  color="teal"
+                />
+              </v-col>
+            </v-row>
+
+            <v-divider class="my-4"></v-divider>
+
+            <div class="d-flex flex-column flex-md-row justify-space-between align-start mb-4">
+              <div class="mb-4 mb-md-0">
+                <div class="text-subtitle-1 font-weight-bold">Monthly Interest Income</div>
+                <div class="text-h4 mb-1">{{ formatCurrency(monthlyPassiveIncome) }}</div>
+                <div class="text-caption">
+                  Based on {{ passiveIncomeRate }}% annual return on {{ formatCurrency(realNetWorth) }}
+                </div>
+              </div>
+
+              <div>
+                <div class="text-subtitle-1 font-weight-bold">Principal Longevity</div>
+                <div class="text-h4 mb-1" :class="{
+                  'text-success': isPrincipalSustainable || principalYears > 30,
+                  'text-warning': !isPrincipalSustainable && principalYears > 15,
+                  'text-error': !isPrincipalSustainable && principalYears <= 15
+                }">
+                  {{ isPrincipalSustainable ? 'Indefinite' : `${principalYears} years` }}
+                </div>
+                <div class="text-caption">
+                  {{ isPrincipalSustainable ? 'Your principal remains intact' : `Withdrawing ${formatCurrency(monthlyWithdrawal)} monthly` }}
+                </div>
+              </div>
+            </div>
+
+            <v-alert
+              :type="isPrincipalSustainable ? 'success' : (principalYears > 20 ? 'info' : 'warning')"
+              variant="tonal"
+              density="compact"
+            >
+              {{ passiveIncomeMessage }}
+            </v-alert>
+          </v-card>
     
           <!-- Inflation Explanation -->
           <v-expansion-panels class="mt-6">
@@ -274,12 +342,15 @@ const monthlyRetirementAccountContribution = ref(0)
 const currentInvestments = ref(0)
 const monthlyInvestments = ref(0)
 const inputPanel = ref(0)
+const passiveIncomeRate = ref(DEFAULT_PASSIVE_INCOME_RATE)
+const monthlyWithdrawal = ref(0)
   
 // Constants
 const RetirementAccount_ANNUAL_RATE = 0.05
 const INVESTMENT_ANNUAL_RATE = 0.10
 const INFLATION_RATE = 0.03
 const COMPOUNDING_FREQUENCY = 12
+const DEFAULT_PASSIVE_INCOME_RATE = 4.0 // 4% default for safe investments
   
 // Computed values
 const yearsToRetirement = computed(() => retirementAge.value - currentAge.value)
@@ -323,6 +394,49 @@ const realFutureInvestments = computed(() =>
 )
   
 const realNetWorth = computed(() => realFutureRetirementAccount.value + realFutureInvestments.value)
+
+// Passive income calculations
+const monthlyPassiveIncome = computed(() => {
+  const annualRate = Number(passiveIncomeRate.value) / 100
+  return (realNetWorth.value * annualRate) / 12
+})
+
+const isPrincipalSustainable = computed(() => {
+  return monthlyPassiveIncome.value >= Number(monthlyWithdrawal.value) || Number(monthlyWithdrawal.value) === 0
+})
+
+const principalYears = computed(() => {
+  if (isPrincipalSustainable.value || Number(monthlyWithdrawal.value) === 0) {
+    return Infinity
+  }
+  
+  const annualRate = Number(passiveIncomeRate.value) / 100
+  const monthlyRate = annualRate / 12
+  const principal = realNetWorth.value
+  const withdrawal = Number(monthlyWithdrawal.value)
+  
+  // Calculate how many months the principal will last
+  let remainingPrincipal = principal
+  let months = 0
+  
+  while (remainingPrincipal > 0 && months < 1200) { // Cap at 100 years
+    const interestEarned = remainingPrincipal * monthlyRate
+    remainingPrincipal = remainingPrincipal + interestEarned - withdrawal
+    months++
+  }
+  
+  return Math.floor(months / 12)
+})
+
+const passiveIncomeMessage = computed(() => {
+  if (isPrincipalSustainable.value) {
+    return `Living off interest alone, you can withdraw up to ${formatCurrency(monthlyPassiveIncome.value)} monthly without depleting your principal.`
+  } else if (principalYears.value > 30) {
+    return `At your desired withdrawal rate of ${formatCurrency(monthlyWithdrawal.value)} monthly, your principal will last over 30 years.`
+  } else {
+    return `At your desired withdrawal rate of ${formatCurrency(monthlyWithdrawal.value)} monthly, your principal will be depleted in approximately ${principalYears.value} years.`
+  }
+})
   
 // Burger cost calculations
 const INITIAL_BURGER_COST_1993 = 5.00
@@ -345,7 +459,8 @@ const assumptions = {
   'Retirement Account annual return': '5%',
   'Investment annual return': '10%',
   'Inflation rate (past & future)': '3%',
-  'Compounding frequency': 'Monthly'
+  'Compounding frequency': 'Monthly',
+  'Passive income default rate': '4%'
 }
   
 const references = [
@@ -425,7 +540,7 @@ const updateDisplayedValues = debounce(() => {
   
 // Watch for changes in input values
 watch(
-  [currentAge, retirementAge, currentRetirementAccount, monthlyRetirementAccountContribution, currentInvestments, monthlyInvestments],
+  [currentAge, retirementAge, currentRetirementAccount, monthlyRetirementAccountContribution, currentInvestments, monthlyInvestments, passiveIncomeRate, monthlyWithdrawal],
   () => {
     updateDisplayedValues()
   }
@@ -445,6 +560,18 @@ const toggleTheme = () => {
 .rolling-number {
   display: inline-block;
   transition: all 0.5s ease-out;
+}
+
+.text-success {
+  color: #4CAF50;
+}
+
+.text-warning {
+  color: #FF9800;
+}
+
+.text-error {
+  color: #F44336;
 }
 
 .rolling-number.final {
