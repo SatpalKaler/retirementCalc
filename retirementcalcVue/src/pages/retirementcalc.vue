@@ -143,6 +143,22 @@
                 </span>
               </div>
             </div>
+            
+            <v-alert
+              class="mt-4"
+              type="info"
+              variant="tonal"
+              density="compact"
+            >
+              <p class="mb-0">
+                You will have <strong>{{ formatCurrency(netWorthByRetirement) }}</strong> in your accounts, but it will be worth <strong>{{ formatCurrency(realNetWorth) }}</strong> when adjusted for inflation - this is your actual purchasing power.
+                <v-btn
+                  variant="text"
+                  density="compact"
+                  class="ms-2 pa-0"
+                </v-btn>
+              </p>
+            </v-alert>
           </v-card>
 
           <!-- Passive Income Calculator -->
@@ -185,7 +201,7 @@
                 <div class="text-subtitle-1 font-weight-bold">Monthly Interest Income</div>
                 <div class="text-h4 mb-1">{{ formatCurrency(monthlyPassiveIncome) }}</div>
                 <div class="text-caption">
-                  Based on {{ passiveIncomeRate }}% annual return on {{ formatCurrency(realNetWorth) }}
+                  Based on {{ passiveIncomeRate }}% annual return on {{ formatCurrency(netWorthByRetirement) }}
                 </div>
               </div>
 
@@ -215,7 +231,7 @@
     
           <!-- Inflation Explanation -->
           <v-expansion-panels class="mt-6">
-            <v-expansion-panel title="💡 How Inflation Works">
+            <v-expansion-panel id="inflation-panel" title="💡 How Inflation Works">
               <v-expansion-panel-text>
                 <InflationExplanation
                   :years-since-1993="yearsSince1993"
@@ -398,10 +414,17 @@ const realNetWorth = computed(() => realFutureRetirementAccount.value + realFutu
 // Passive income calculations
 const monthlyPassiveIncome = computed(() => {
   const annualRate = Number(passiveIncomeRate.value) / 100
+  return (netWorthByRetirement.value * annualRate) / 12
+})
+
+// Inflation-adjusted passive income (what it would be worth in today's dollars)
+const realMonthlyPassiveIncome = computed(() => {
+  const annualRate = Number(passiveIncomeRate.value) / 100
   return (realNetWorth.value * annualRate) / 12
 })
 
 const isPrincipalSustainable = computed(() => {
+  // Compare nominal values for sustainability
   return monthlyPassiveIncome.value >= Number(monthlyWithdrawal.value) || Number(monthlyWithdrawal.value) === 0
 })
 
@@ -412,7 +435,7 @@ const principalYears = computed(() => {
   
   const annualRate = Number(passiveIncomeRate.value) / 100
   const monthlyRate = annualRate / 12
-  const principal = realNetWorth.value
+  const principal = netWorthByRetirement.value // Use nominal value
   const withdrawal = Number(monthlyWithdrawal.value)
   
   // Calculate how many months the principal will last
@@ -430,11 +453,11 @@ const principalYears = computed(() => {
 
 const passiveIncomeMessage = computed(() => {
   if (isPrincipalSustainable.value) {
-    return `Living off interest alone, you can withdraw up to ${formatCurrency(monthlyPassiveIncome.value)} monthly without depleting your principal.`
+    return `Living off interest alone, you can withdraw up to ${formatCurrency(monthlyPassiveIncome.value)} monthly without depleting your principal. This is equivalent to ${formatCurrency(realMonthlyPassiveIncome.value)} in today's value.`
   } else if (principalYears.value > 30) {
-    return `At your desired withdrawal rate of ${formatCurrency(monthlyWithdrawal.value)} monthly, your principal will last over 30 years.`
+    return `At your desired withdrawal rate of ${formatCurrency(monthlyWithdrawal.value)} monthly, your principal will last over 30 years. Note that this withdrawal amount would be equivalent to ${formatCurrency(monthlyWithdrawal.value / Math.pow(1 + INFLATION_RATE, yearsToRetirement.value))} in today's dollars.`
   } else {
-    return `At your desired withdrawal rate of ${formatCurrency(monthlyWithdrawal.value)} monthly, your principal will be depleted in approximately ${principalYears.value} years.`
+    return `At your desired withdrawal rate of ${formatCurrency(monthlyWithdrawal.value)} monthly, your principal will be depleted in approximately ${principalYears.value} years. Note that this withdrawal amount would be equivalent to ${formatCurrency(monthlyWithdrawal.value / Math.pow(1 + INFLATION_RATE, yearsToRetirement.value))} in today's dollars.`
   }
 })
   
